@@ -1,0 +1,219 @@
+SELECT TOP (1000) [player_name]
+      ,[team]
+      ,[date_of_birth]
+      ,[age]
+      ,[marital_status]
+      ,[number_of_kids]
+      ,[nationality]
+      ,[country_of_birth]
+      ,[position]
+      ,[preferred_foot]
+      ,[height_cm]
+      ,[weight_kg]
+      ,[jersey_number]
+      ,[injury_status]
+      ,[agent]
+      ,[matches_played]
+      ,[minutes_played]
+      ,[goals]
+      ,[assists]
+      ,[tackles]
+      ,[interceptions]
+      ,[saves]
+      ,[clean_sheets]
+      ,[yellow_cards]
+      ,[red_cards]
+      ,[passing_accuracy]
+      ,[shot_accuracy]
+      ,[previous_club]
+      ,[years_at_club]
+      ,[contract_end_year]
+      ,[average_salary_zar]
+      ,[market_value_zar]
+      ,[signing_bonus_zar]
+      ,[release_clause_zar]
+  FROM [Gsta_SA_Soccer_Analysis].[dbo].[south_african_soccer_dataset]
+   WHERE marital_status='Married'
+------------------------------------------------------------
+
+1. --- View the first 100 rows of the dataset to understand its structure.
+
+SELECT top 100 * FROM [dbo].[south_african_soccer_dataset]
+
+2. ---Count the total number of players in the dataset.
+
+SELECT* FROM [dbo].[south_african_soccer_dataset]
+
+SELECT COUNT([Player_Name]) AS TotalPlayers
+FROM [dbo].[south_african_soccer_dataset]
+
+3. ---List all unique teams in the league.
+
+SELECT DISTINCT team
+FROM [dbo].[south_african_soccer_dataset]
+
+4. ---Count how many players are in each team.
+
+SELECT
+    Team,
+    COUNT([Player_Name]) AS NumberOfPlayers
+FROM [dbo].[south_african_soccer_dataset]
+GROUP BY Team
+ORDER BY NumberOfPlayers DESC;
+
+5. ---Identify the top 10 players with the most goals.
+
+SELECT TOP 10
+    [Player_Name],
+    Team,
+    Goals
+FROM [dbo].[south_african_soccer_dataset]
+ORDER BY Goals DESC;
+
+
+6. ---Find the average salary for players in each team.
+
+SELECT
+    Team,
+    -- CAST converts the string column to a number (DECIMAL) so AVG can calculate the average.
+    AVG(CAST(average_salary_zar AS DECIMAL(18, 2))) AS AverageSalary
+FROM [dbo].[south_african_soccer_dataset]
+GROUP BY Team
+ORDER BY AverageSalary DESC;
+
+
+7. ---Retrieve the top 10 players with the highest market value.
+
+SELECT TOP 10
+    [player_name],
+    Team,
+    [market_value_zar]
+FROM [dbo].[south_african_soccer_dataset]
+
+ORDER BY [market_value_zar] DESC;
+
+
+8. ---Calculate the average passing accuracy for each position.
+
+SELECT
+    Position,
+    -- CAST converts the string column to a DECIMAL so AVG can calculate the average.
+    AVG(CAST([passing_accuracy] AS DECIMAL(5, 2))) AS AveragePassAccuracy
+FROM [dbo].[south_african_soccer_dataset]
+GROUP BY Position
+ORDER BY AveragePassAccuracy DESC;
+
+9. ---Compare shot accuracy with goals to find correlations.
+-- Alternative: Compare Goals with Pass Accuracy (%)
+SELECT
+    [player_name],
+    Goals,
+    [passing_accuracy]
+FROM [dbo].[south_african_soccer_dataset]
+ORDER BY Goals DESC, [passing_accuracy] DESC;
+
+
+10. ---Compute total goals and assists for each team.
+
+SELECT
+    Team,
+    SUM(CAST(Goals AS INT)) AS TotalGoals,
+    SUM(CAST(Assists AS INT)) AS TotalAssists,
+    SUM(CAST(Goals AS INT) + CAST(Assists AS INT)) AS CombinedGoalsAndAssists
+FROM [dbo].[south_african_soccer_dataset]
+GROUP BY Team
+ORDER BY CombinedGoalsAndAssists DESC;
+
+11. ---Count players by their marital status.
+
+SELECT
+    marital_status,
+    COUNT([player_name]) AS NumberOfPlayers
+FROM [dbo].[south_african_soccer_dataset]
+GROUP BY marital_status;
+
+12. ---Count players by nationality.
+
+SELECT
+    Nationality,
+    COUNT([player_name]) AS NumberOfPlayers
+FROM [dbo].[south_african_soccer_dataset]
+GROUP BY Nationality
+ORDER BY NumberOfPlayers DESC;
+
+13. ---Find average market value grouped by nationality.
+
+SELECT
+    Nationality,
+    -- Apply CAST to convert the market value string to a DECIMAL before finding the AVG.
+    AVG(CAST(market_value_zar AS DECIMAL(18, 2))) AS AverageMarketValue
+FROM [dbo].[south_african_soccer_dataset]
+GROUP BY Nationality
+ORDER BY AverageMarketValue DESC;
+
+14. ---Determine how many player contracts end in each year.
+
+SELECT
+    contract_end_year,
+    COUNT([Player_Name]) AS NumberOfPlayers
+FROM [dbo].[south_african_soccer_dataset]
+GROUP BY contract_end_year
+ORDER BY contract_end_year;
+
+15. ---Identify players whose contracts end next year.
+
+SELECT
+    [player_name],
+    Team
+FROM [dbo].[south_african_soccer_dataset]
+WHERE contract_end_year = 2026;
+
+16. ---Summarize the number of players by injury status.
+
+SELECT
+    Injury_Status,
+    COUNT([Player_Name]) AS NumberOfPlayers
+FROM [dbo].[south_african_soccer_dataset]
+GROUP BY injury_status;
+
+17. ---Calculate goals per match ratio for each player.
+
+SELECT
+   [player_name],
+    Team,
+    Goals,
+    matches_played,
+    CAST(Goals AS DECIMAL(10, 2)) / matches_played AS GoalsPerMatchRatio
+FROM [dbo].[south_african_soccer_dataset]
+WHERE matches_played > 0 -- Avoid division by zero
+ORDER BY GoalsPerMatchRatio DESC;
+
+18. ---Count how many players are managed by each agent.
+
+SELECT
+    agent,
+    COUNT([player_name]) AS NumberOfPlayers
+FROM [dbo].[south_african_soccer_dataset]
+GROUP BY agent
+ORDER BY NumberOfPlayers DESC;
+
+19. ---Calculate average height and weight by player position.
+
+SELECT
+    position,
+    AVG(height_cm) AS AverageHeight_cm,
+    AVG(Weight_kg) AS AverageWeight_kg
+FROM [dbo].[south_african_soccer_dataset]
+GROUP BY position
+ORDER BY AverageHeight_cm DESC;
+
+20. ---Identify players with the highest combined goals and assists.
+
+SELECT TOP 10
+    [player_name],
+    team,
+    goals,
+    assists,
+    (Goals + Assists) AS CombinedGoalsAndAssists
+FROM [dbo].[south_african_soccer_dataset]
+ORDER BY CombinedGoalsAndAssists DESC;
